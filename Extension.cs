@@ -1,4 +1,7 @@
-﻿namespace Box;
+﻿using System;
+using System.Collections.Generic;
+
+namespace Box;
 
 public static class Extension
 {
