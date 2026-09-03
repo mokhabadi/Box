@@ -6,20 +6,20 @@ namespace Box;
 
 public class Writer(BinaryWriter binaryWriter) : IWriter
 {
-	public void Write<T>(T value, [CallerArgumentExpression(nameof(value))] string? key = null)
+	public void Write<T>(T value, [CallerArgumentExpression(nameof(value))] string key = "")
 	{
 		WriteTypeAndKey<T>(key);
 		WriteValue(value);
 	}
 
-	public void WriteNullable<T>(T? value, [CallerArgumentExpression(nameof(value))] string? key = null)
+	public void WriteNullable<T>(T? value, [CallerArgumentExpression(nameof(value))] string key = "")
 	{
 		WriteHasValue(value);
 		WriteTypeAndKey<T>(key);
 		if (value != null) WriteValue(value);
 	}
 
-	public void Write<T>(T[] value, [CallerArgumentExpression(nameof(value))] string? key = null)
+	public void Write<T>(T[] value, [CallerArgumentExpression(nameof(value))] string key = "")
 	{
 		WriteChar('A');
 		WriteLength(value.Length);
@@ -29,7 +29,7 @@ public class Writer(BinaryWriter binaryWriter) : IWriter
 		WriteChar(']');
 	}
 
-	public void WriteNullable<T>(T[]? value, [CallerArgumentExpression(nameof(value))] string? key = null)
+	public void WriteNullable<T>(T[]? value, [CallerArgumentExpression(nameof(value))] string key = "")
 	{
 		WriteHasValue(value);
 		WriteChar('A');
@@ -41,13 +41,12 @@ public class Writer(BinaryWriter binaryWriter) : IWriter
 		WriteChar(']');
 	}
 
-	private void WriteTypeAndKey<T>(string? key)
+	private void WriteTypeAndKey<T>(string key)
 	{
 		Type type = GetType<T>();
 		string typeName = type.Name;
 		binaryWriter.Write(typeName);
-		if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("key is null or empty", nameof(key));
-		binaryWriter.Write(key);
+		binaryWriter.Write(key.Trim());
 	}
 
 	private Type GetType<T>()

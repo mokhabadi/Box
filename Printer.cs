@@ -107,7 +107,7 @@ public class Printer(BinaryReader binaryReader)
 		}
 
 		ReadChar('}');
-		result.Append("}");
+		result.Append('}');
 		return result.ToString();
 	}
 

@@ -6,13 +6,13 @@ namespace Box;
 
 public class Reader(BinaryReader binaryReader) : IReader
 {
-	public void Read<T>(out T value, [CallerArgumentExpression(nameof(value))] string? key = null)
+	public void Read<T>(out T value, [CallerArgumentExpression(nameof(value))] string key = "")
 	{
 		ReadTypeAndKey<T>(key);
 		ReadValue(out value);
 	}
 
-	public void ReadNullable<T>(out T? value, [CallerArgumentExpression(nameof(value))] string? key = null)
+	public void ReadNullable<T>(out T? value, [CallerArgumentExpression(nameof(value))] string key = "")
 	{
 		bool hasValue = ReadHasValue();
 		ReadTypeAndKey<T>(key);
@@ -20,7 +20,7 @@ public class Reader(BinaryReader binaryReader) : IReader
 		else value = default;
 	}
 
-	public void Read<T>(out T[] value, [CallerArgumentExpression(nameof(value))] string? key = null)
+	public void Read<T>(out T[] value, [CallerArgumentExpression(nameof(value))] string key = "")
 	{
 		ReadChar('A');
 		int length = ReadLength();
@@ -31,7 +31,7 @@ public class Reader(BinaryReader binaryReader) : IReader
 		ReadChar(']');
 	}
 
-	public void ReadNullable<T>(out T[]? value, [CallerArgumentExpression(nameof(value))] string? key = null)
+	public void ReadNullable<T>(out T[]? value, [CallerArgumentExpression(nameof(value))] string key = "")
 	{
 		bool hasValue = ReadHasValue();
 		ReadChar('A');
@@ -44,13 +44,12 @@ public class Reader(BinaryReader binaryReader) : IReader
 		ReadChar(']');
 	}
 
-	private void ReadTypeAndKey<T>(string? expectedKey)
+	private void ReadTypeAndKey<T>(string expectedKey)
 	{
 		Type type = GetType<T>();
 		string expectedTypeName = type.Name;
 		string typeName = binaryReader.ReadString();
 		if (typeName != expectedTypeName) throw new Exception($"type mismatch '{typeName}', expected '{expectedTypeName}'");
-		if (string.IsNullOrWhiteSpace(expectedKey)) throw new ArgumentException("key is null or empty", nameof(expectedKey));
 		string key = binaryReader.ReadString();
 		expectedKey = expectedKey[(expectedKey.LastIndexOf(' ') + 1)..];
 		if (key != expectedKey) throw new Exception($"value mismatch '{key}', expected '{expectedKey}'");
