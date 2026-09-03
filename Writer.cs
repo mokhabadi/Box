@@ -13,6 +13,14 @@ public class Writer(BinaryWriter binaryWriter) : IWriter
 		WriteValue(value);
 	}
 
+	public void WriteNullable<T>(T? value, [CallerArgumentExpression(nameof(value))] string? key = null)
+	{
+		WriteKey(key);
+		WriteHasValue(value);
+		WriteType<T>();
+		if (value != null) WriteValue(value);
+	}
+
 	public void Write<T>(T[] value, [CallerArgumentExpression(nameof(value))] string? key = null)
 	{
 		WriteKey(key);
@@ -22,14 +30,6 @@ public class Writer(BinaryWriter binaryWriter) : IWriter
 		WriteChar('[');
 		foreach (T item in value) WriteValue(item);
 		WriteChar(']');
-	}
-
-	public void WriteNullable<T>(T? value, [CallerArgumentExpression(nameof(value))] string? key = null)
-	{
-		WriteKey(key);
-		WriteHasValue(value);
-		WriteType<T>();
-		if (value != null) WriteValue(value);
 	}
 
 	public void WriteNullable<T>(T[]? value, [CallerArgumentExpression(nameof(value))] string? key = null)

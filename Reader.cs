@@ -13,6 +13,15 @@ public class Reader(BinaryReader binaryReader) : IReader
 		ReadValue(out value);
 	}
 
+	public void ReadNullable<T>(out T? value, [CallerArgumentExpression(nameof(value))] string? key = null)
+	{
+		ReadKey(key);
+		bool hasValue = ReadHasValue();
+		ReadType<T>();
+		if (hasValue) ReadValue(out value);
+		else value = default;
+	}
+
 	public void Read<T>(out T[] value, [CallerArgumentExpression(nameof(value))] string? key = null)
 	{
 		ReadKey(key);
@@ -23,15 +32,6 @@ public class Reader(BinaryReader binaryReader) : IReader
 		ReadChar('[');
 		for (int i = 0; i < length; i++) ReadValue(out value[i]);
 		ReadChar(']');
-	}
-
-	public void ReadNullable<T>(out T? value, [CallerArgumentExpression(nameof(value))] string? key = null)
-	{
-		ReadKey(key);
-		bool hasValue = ReadHasValue();
-		ReadType<T>();
-		if (hasValue) ReadValue(out value);
-		else value = default;
 	}
 
 	public void ReadNullable<T>(out T[]? value, [CallerArgumentExpression(nameof(value))] string? key = null)
