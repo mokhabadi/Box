@@ -8,25 +8,22 @@ public class Writer(BinaryWriter binaryWriter) : IWriter
 {
 	public void Write<T>(T value, [CallerArgumentExpression(nameof(value))] string? key = null)
 	{
-		WriteKey(key);
-		WriteType<T>();
+		WriteTypeAndKey<T>(key);
 		WriteValue(value);
 	}
 
 	public void WriteNullable<T>(T? value, [CallerArgumentExpression(nameof(value))] string? key = null)
 	{
-		WriteKey(key);
 		WriteHasValue(value);
-		WriteType<T>();
+		WriteTypeAndKey<T>(key);
 		if (value != null) WriteValue(value);
 	}
 
 	public void Write<T>(T[] value, [CallerArgumentExpression(nameof(value))] string? key = null)
 	{
-		WriteKey(key);
 		WriteChar('A');
 		WriteLength(value.Length);
-		WriteType<T>();
+		WriteTypeAndKey<T>(key);
 		WriteChar('[');
 		foreach (T item in value) WriteValue(item);
 		WriteChar(']');
@@ -34,41 +31,41 @@ public class Writer(BinaryWriter binaryWriter) : IWriter
 
 	public void WriteNullable<T>(T[]? value, [CallerArgumentExpression(nameof(value))] string? key = null)
 	{
-		WriteKey(key);
 		WriteHasValue(value);
 		WriteChar('A');
 		if (value != null) WriteLength(value.Length);
-		WriteType<T>();
+		WriteTypeAndKey<T>(key);
 		if (value == null) return;
 		WriteChar('[');
 		foreach (T item in value) WriteValue(item);
 		WriteChar(']');
 	}
 
-	private void WriteKey(string? key)
+	private void WriteTypeAndKey<T>(string? key)
 	{
+		Type type = GetType<T>();
+		string typeName = type.Name;
+		binaryWriter.Write(typeName);
 		if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("key is null or empty", nameof(key));
-		WriteChar('|');
 		binaryWriter.Write(key);
 	}
 
-	private void WriteType<T>()
+	private Type GetType<T>()
 	{
 		Type type = typeof(T);
 		Type? nullableType = Nullable.GetUnderlyingType(type);
-		string typeName = nullableType != null ? nullableType.Name : type.Name;
-		binaryWriter.Write(typeName);
-	}
-
-	private void WriteChar(char value)
-	{
-		binaryWriter.Write(value);
+		return nullableType ?? type;
 	}
 
 	private void WriteHasValue<T>(T? value)
 	{
 		char hasValue = value != null ? 'T' : 'F';
-		binaryWriter.Write(hasValue);
+		WriteChar(hasValue);
+	}
+
+	private void WriteChar(char value)
+	{
+		binaryWriter.Write(value);
 	}
 
 	private void WriteLength(int length)

@@ -8,26 +8,23 @@ public class Reader(BinaryReader binaryReader) : IReader
 {
 	public void Read<T>(out T value, [CallerArgumentExpression(nameof(value))] string? key = null)
 	{
-		ReadKey(key);
-		ReadType<T>();
+		ReadTypeAndKey<T>(key);
 		ReadValue(out value);
 	}
 
 	public void ReadNullable<T>(out T? value, [CallerArgumentExpression(nameof(value))] string? key = null)
 	{
-		ReadKey(key);
 		bool hasValue = ReadHasValue();
-		ReadType<T>();
+		ReadTypeAndKey<T>(key);
 		if (hasValue) ReadValue(out value);
 		else value = default;
 	}
 
 	public void Read<T>(out T[] value, [CallerArgumentExpression(nameof(value))] string? key = null)
 	{
-		ReadKey(key);
 		ReadChar('A');
 		int length = ReadLength();
-		ReadType<T>();
+		ReadTypeAndKey<T>(key);
 		value = new T[length];
 		ReadChar('[');
 		for (int i = 0; i < length; i++) ReadValue(out value[i]);
@@ -36,33 +33,27 @@ public class Reader(BinaryReader binaryReader) : IReader
 
 	public void ReadNullable<T>(out T[]? value, [CallerArgumentExpression(nameof(value))] string? key = null)
 	{
-		ReadKey(key);
 		bool hasValue = ReadHasValue();
 		ReadChar('A');
 		int length = hasValue ? ReadLength() : 0;
 		value = hasValue ? new T[length] : null;
-		ReadType<T>();
+		ReadTypeAndKey<T>(key);
 		if (value == null) return;
 		ReadChar('[');
 		for (int i = 0; i < value.Length; i++) ReadValue(out value[i]);
 		ReadChar(']');
 	}
 
-	private void ReadKey(string? expectedKey)
-	{
-		if (string.IsNullOrWhiteSpace(expectedKey)) throw new ArgumentException("key is null or empty", nameof(expectedKey));
-		ReadChar('|');
-		string key = binaryReader.ReadString();
-		expectedKey = expectedKey[(expectedKey.LastIndexOf(' ') + 1)..];
-		if (key != expectedKey) throw new Exception($"value mismatch '{key}', expected '{expectedKey}'");
-	}
-
-	private void ReadType<T>()
+	private void ReadTypeAndKey<T>(string? expectedKey)
 	{
 		Type type = GetType<T>();
 		string expectedTypeName = type.Name;
 		string typeName = binaryReader.ReadString();
 		if (typeName != expectedTypeName) throw new Exception($"type mismatch '{typeName}', expected '{expectedTypeName}'");
+		if (string.IsNullOrWhiteSpace(expectedKey)) throw new ArgumentException("key is null or empty", nameof(expectedKey));
+		string key = binaryReader.ReadString();
+		expectedKey = expectedKey[(expectedKey.LastIndexOf(' ') + 1)..];
+		if (key != expectedKey) throw new Exception($"value mismatch '{key}', expected '{expectedKey}'");
 	}
 
 	private Type GetType<T>()

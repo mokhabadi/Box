@@ -30,8 +30,6 @@ public class Printer(BinaryReader binaryReader)
 
 	private string PrintItem()
 	{
-		ReadChar('|');
-		string key = binaryReader.ReadString();
 		bool isNullable = false;
 		bool hasValue = true;
 		bool isArray = false;
@@ -54,6 +52,7 @@ public class Printer(BinaryReader binaryReader)
 		}
 
 		string typeName = binaryReader.ReadString();
+		string key = binaryReader.ReadString();
 		string value = hasValue ? isArray ? PrintArray(typeName, arrayLength) : PrintValue(typeName) : "null";
 		string result = $"{typeName}{(isArray ? $"[{(hasValue ? arrayLength : "")}]" : "")}{(isNullable ? "?" : "")} {key} = {value};";
 		return result;
