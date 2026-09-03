@@ -59,11 +59,17 @@ public class Reader(BinaryReader binaryReader) : IReader
 
 	private void ReadType<T>()
 	{
-		Type type = typeof(T);
-		Type? nullableType = Nullable.GetUnderlyingType(type);
-		string expectedTypeName = nullableType != null ? nullableType.Name : type.Name;
+		Type type = GetType<T>();
+		string expectedTypeName = type.Name;
 		string typeName = binaryReader.ReadString();
 		if (typeName != expectedTypeName) throw new Exception($"type mismatch '{typeName}', expected '{expectedTypeName}'");
+	}
+
+	private Type GetType<T>()
+	{
+		Type type = typeof(T);
+		Type? nullableType = Nullable.GetUnderlyingType(type);
+		return nullableType ?? type;
 	}
 
 	private void ReadChar(char expectedValue)
@@ -88,23 +94,24 @@ public class Reader(BinaryReader binaryReader) : IReader
 
 	private void ReadValue<T>(out T value)
 	{
-		if (typeof(T).IsAssignableTo(typeof(IBox))) ReadObject(out value);
-		else if (typeof(T) == typeof(bool)) value = (T)(object)binaryReader.ReadBoolean();
-		else if (typeof(T) == typeof(char)) value = (T)(object)binaryReader.ReadChar();
-		else if (typeof(T) == typeof(byte)) value = (T)(object)binaryReader.ReadByte();
-		else if (typeof(T) == typeof(sbyte)) value = (T)(object)binaryReader.ReadSByte();
-		else if (typeof(T) == typeof(short)) value = (T)(object)binaryReader.ReadInt16();
-		else if (typeof(T) == typeof(ushort)) value = (T)(object)binaryReader.ReadUInt16();
-		else if (typeof(T) == typeof(int)) value = (T)(object)binaryReader.ReadInt32();
-		else if (typeof(T) == typeof(uint)) value = (T)(object)binaryReader.ReadUInt32();
-		else if (typeof(T) == typeof(long)) value = (T)(object)binaryReader.ReadInt64();
-		else if (typeof(T) == typeof(ulong)) value = (T)(object)binaryReader.ReadUInt64();
-		else if (typeof(T) == typeof(float)) value = (T)(object)binaryReader.ReadSingle();
-		else if (typeof(T) == typeof(double)) value = (T)(object)binaryReader.ReadDouble();
-		else if (typeof(T) == typeof(decimal)) value = (T)(object)binaryReader.ReadDecimal();
-		else if (typeof(T) == typeof(string)) value = (T)(object)binaryReader.ReadString();
-		else if (typeof(T) == typeof(DateTime)) value = (T)(object)DateTime.FromBinary(binaryReader.ReadInt64());
-		else if (typeof(T) == typeof(TimeSpan)) value = (T)(object)TimeSpan.FromTicks(binaryReader.ReadInt64());
+		Type type = GetType<T>();
+		if (type.IsAssignableTo(typeof(IBox))) ReadObject(out value);
+		else if (type == typeof(bool)) value = (T)(object)binaryReader.ReadBoolean();
+		else if (type == typeof(char)) value = (T)(object)binaryReader.ReadChar();
+		else if (type == typeof(byte)) value = (T)(object)binaryReader.ReadByte();
+		else if (type == typeof(sbyte)) value = (T)(object)binaryReader.ReadSByte();
+		else if (type == typeof(short)) value = (T)(object)binaryReader.ReadInt16();
+		else if (type == typeof(ushort)) value = (T)(object)binaryReader.ReadUInt16();
+		else if (type == typeof(int)) value = (T)(object)binaryReader.ReadInt32();
+		else if (type == typeof(uint)) value = (T)(object)binaryReader.ReadUInt32();
+		else if (type == typeof(long)) value = (T)(object)binaryReader.ReadInt64();
+		else if (type == typeof(ulong)) value = (T)(object)binaryReader.ReadUInt64();
+		else if (type == typeof(float)) value = (T)(object)binaryReader.ReadSingle();
+		else if (type == typeof(double)) value = (T)(object)binaryReader.ReadDouble();
+		else if (type == typeof(decimal)) value = (T)(object)binaryReader.ReadDecimal();
+		else if (type == typeof(string)) value = (T)(object)binaryReader.ReadString();
+		else if (type == typeof(DateTime)) value = (T)(object)DateTime.FromBinary(binaryReader.ReadInt64());
+		else if (type == typeof(TimeSpan)) value = (T)(object)TimeSpan.FromTicks(binaryReader.ReadInt64());
 		else throw new NotSupportedException(typeof(T).Name);
 	}
 

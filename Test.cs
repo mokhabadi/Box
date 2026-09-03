@@ -7,23 +7,23 @@ namespace Box;
 
 public class Test
 {
-	private readonly bool @bool = true;
-	private readonly char @char = 'M';
-	private readonly byte @byte = 199;
-	private readonly sbyte @sbyte = -77;
-	private readonly short @short = 32000;
-	private readonly ushort @ushort = 64000;
-	private readonly int @int = -123456;
-	private readonly uint @uint = 654321;
-	private readonly long @long = -9876543210;
-	private readonly ulong @ulong = 9123456789;
-	private readonly float @float = 55.55f;
-	private readonly double @double = 22.22;
-	private readonly decimal @decimal = 66.66m;
-	private readonly string @string = "Hello World";
-	private readonly DateTime dateTime = new(2000, 1, 1);
-	private readonly TimeSpan timeSpan = new(10, 10, 10);
-	private readonly TestBox testBox = new(333, "test_box", new TestBox.InnerBox([4.4f, 4.5f, 4.6f]));
+	private readonly bool boolValue = true;
+	private readonly char charValue = 'M';
+	private readonly byte byteValue = 199;
+	private readonly sbyte sbyteValue = -77;
+	private readonly short shortValue = 32000;
+	private readonly ushort ushortValue = 64000;
+	private readonly int intValue = -123456;
+	private readonly uint uintValue = 654321;
+	private readonly long longValue = -9876543210;
+	private readonly ulong ulongValue = 9123456789;
+	private readonly float floatValue = 55.55f;
+	private readonly double doubleValue = 22.22;
+	private readonly decimal decimalValue = 66.66m;
+	private readonly string stringValue = "Hello World";
+	private readonly DateTime dateTimeValue = new(2000, 1, 1);
+	private readonly TimeSpan timeSpanValue = new(10, 10, 10);
+	private readonly TestBox testBoxValue = new(333, "test_box", new TestBox.InnerBox([4.4f, 4.5f, 4.6f]));
 
 	private readonly bool? boolNull = null;
 	private readonly char? charNull = null;
@@ -42,6 +42,24 @@ public class Test
 	private readonly DateTime? dateTimeNull = null;
 	private readonly TimeSpan? timeSpanNull = null;
 	private readonly TestBox? testBoxNull = null;
+
+	private readonly bool? boolNonNull =  true;
+	private readonly char? charNonNull =  'M';
+	private readonly byte? byteNonNull =  199;
+	private readonly sbyte? sbyteNonNull =  -77;
+	private readonly short? shortNonNull =  32000;
+	private readonly ushort? ushortNonNull =  64000;
+	private readonly int? intNonNull =  -123456;
+	private readonly uint? uintNonNull =  654321;
+	private readonly long? longNonNull =  -9876543210;
+	private readonly ulong? ulongNonNull =  9123456789;
+	private readonly float? floatNonNull =  55.55f;
+	private readonly double? doubleNonNull =  22.22;
+	private readonly decimal? decimalNonNull =  66.66m;
+	private readonly string? stringNonNull =  "Hello World";
+	private readonly DateTime? dateTimeNonNull =  new(2000, 1, 1);
+	private readonly TimeSpan? timeSpanNonNull =  new(10, 10, 10);
+	private readonly TestBox? testBoxNonNull =  new(333, "test_box", new TestBox.InnerBox([4.4f, 4.5f, 4.6f]));
 
 	private readonly bool[] boolArray = [true, false, true, false];
 	private readonly char[] charArray = ['A', 'B', 'C', 'D', 'E', 'F'];
@@ -79,13 +97,31 @@ public class Test
 	private readonly TimeSpan[]? timeSpanNullArray = null;
 	private readonly TestBox[]? testBoxNullArray = null;
 
+	private readonly bool[]? boolNonNullArray = [true, false, true, false];
+	private readonly char[]? charNonNullArray = ['A', 'B', 'C', 'D', 'E', 'F'];
+	private readonly byte[]? byteNonNullArray = [10, 20, 30, 40];
+	private readonly sbyte[]? sbyteNonNullArray = [-10, -20, -30, -40];
+	private readonly short[]? shortNonNullArray = [1000, 10000];
+	private readonly ushort[]? ushortNonNullArray = [6000, 60000];
+	private readonly int[]? intNonNullArray = [999999, -99];
+	private readonly uint[]? uintNonNullArray = [uint.MaxValue, 43];
+	private readonly long[]? longNonNullArray = [10123000123, -23];
+	private readonly ulong[]? ulongNonNullArray = [ulong.MaxValue, 31];
+	private readonly float[]? floatNonNullArray = [1.1f, 2.2f];
+	private readonly double[]? doubleNonNullArray = [0.123, 0.456];
+	private readonly decimal[]? decimalNonNullArray = [9.99m, 7.99m];
+	private readonly string[]? stringNonNullArray = ["alice", "bob"];
+	private readonly DateTime[]? dateTimeNonNullArray = [new(2026, 6, 6), new(2027, 7, 7)];
+	private readonly TimeSpan[]? timeSpanNonNullArray = [TimeSpan.FromSeconds(5), TimeSpan.FromMinutes(30)];
+	private readonly TestBox[]? testBoxNonNullArray = [new TestBox(1, "one", new TestBox.InnerBox([1, 1, 1])), new(2, "two", new TestBox.InnerBox([2, 2, 2]))];
+
 	public void Execute()
 	{
 		MemoryStream memoryStream = new();
 		Write(memoryStream);
 		memoryStream.Position = 0;
 		byte[] bytes = memoryStream.ToArray();
-		string box = string.Concat(bytes.Select(b => b is >= 32 and <= 126 ? ((char)b).ToString() : b.ToString()));
+		string box = string.Concat(bytes.Select(b => b is >= 32 and <= 126 ? $"{(char)b}" : $"{b}"));
 		Trace.WriteLine(box);
 		Printer printer = new(new BinaryReader(memoryStream));
 		string print = printer.Print();
@@ -99,23 +135,23 @@ public class Test
 		BinaryWriter binaryWriter = new(stream);
 		IWriter writer = new Writer(binaryWriter);
 		
-		writer.Write(@bool);
-		writer.Write(@char);
-		writer.Write(@byte);
-		writer.Write(@sbyte);
-		writer.Write(@short);
-		writer.Write(@ushort);
-		writer.Write(@int);
-		writer.Write(@uint);
-		writer.Write(@long);
-		writer.Write(@ulong);
-		writer.Write(@float);
-		writer.Write(@double);
-		writer.Write(@decimal);
-		writer.Write(@string);
-		writer.Write(dateTime);
-		writer.Write(timeSpan);
-		writer.Write(testBox);
+		writer.Write(boolValue);
+		writer.Write(charValue);
+		writer.Write(byteValue);
+		writer.Write(sbyteValue);
+		writer.Write(shortValue);
+		writer.Write(ushortValue);
+		writer.Write(intValue);
+		writer.Write(uintValue);
+		writer.Write(longValue);
+		writer.Write(ulongValue);
+		writer.Write(floatValue);
+		writer.Write(doubleValue);
+		writer.Write(decimalValue);
+		writer.Write(stringValue);
+		writer.Write(dateTimeValue);
+		writer.Write(timeSpanValue);
+		writer.Write(testBoxValue);
 
 		writer.WriteNullable(boolNull);
 		writer.WriteNullable(charNull);
@@ -134,6 +170,24 @@ public class Test
 		writer.WriteNullable(dateTimeNull);
 		writer.WriteNullable(timeSpanNull);
 		writer.WriteNullable(testBoxNull);
+
+		writer.WriteNullable(boolNonNull);
+		writer.WriteNullable(charNonNull);
+		writer.WriteNullable(byteNonNull);
+		writer.WriteNullable(sbyteNonNull);
+		writer.WriteNullable(shortNonNull);
+		writer.WriteNullable(ushortNonNull);
+		writer.WriteNullable(intNonNull);
+		writer.WriteNullable(uintNonNull);
+		writer.WriteNullable(longNonNull);
+		writer.WriteNullable(ulongNonNull);
+		writer.WriteNullable(floatNonNull);
+		writer.WriteNullable(doubleNonNull);
+		writer.WriteNullable(decimalNonNull);
+		writer.WriteNullable(stringNonNull);
+		writer.WriteNullable(dateTimeNonNull);
+		writer.WriteNullable(timeSpanNonNull);
+		writer.WriteNullable(testBoxNonNull);
 
 		writer.Write(boolArray);
 		writer.Write(charArray);
@@ -170,6 +224,24 @@ public class Test
 		writer.WriteNullable(dateTimeNullArray);
 		writer.WriteNullable(timeSpanNullArray);
 		writer.WriteNullable(testBoxNullArray);
+
+		writer.WriteNullable(boolNonNullArray);
+		writer.WriteNullable(charNonNullArray);
+		writer.WriteNullable(byteNonNullArray);
+		writer.WriteNullable(sbyteNonNullArray);
+		writer.WriteNullable(shortNonNullArray);
+		writer.WriteNullable(ushortNonNullArray);
+		writer.WriteNullable(intNonNullArray);
+		writer.WriteNullable(uintNonNullArray);
+		writer.WriteNullable(longNonNullArray);
+		writer.WriteNullable(ulongNonNullArray);
+		writer.WriteNullable(floatNonNullArray);
+		writer.WriteNullable(doubleNonNullArray);
+		writer.WriteNullable(decimalNonNullArray);
+		writer.WriteNullable(stringNonNullArray);
+		writer.WriteNullable(dateTimeNonNullArray);
+		writer.WriteNullable(timeSpanNonNullArray);
+		writer.WriteNullable(testBoxNonNullArray);
 	}
 
 	private void Read(MemoryStream stream)
@@ -177,23 +249,23 @@ public class Test
 		BinaryReader binaryReader = new(stream);
 		IReader reader = new Reader(binaryReader);
 
-		reader.Read(out bool @bool);
-		reader.Read(out char @char);
-		reader.Read(out byte @byte);
-		reader.Read(out sbyte @sbyte);
-		reader.Read(out short @short);
-		reader.Read(out ushort @ushort);
-		reader.Read(out int @int);
-		reader.Read(out uint @uint);
-		reader.Read(out long @long);
-		reader.Read(out ulong @ulong);
-		reader.Read(out float @float);
-		reader.Read(out double @double);
-		reader.Read(out decimal @decimal);
-		reader.Read(out string @string);
-		reader.Read(out DateTime dateTime);
-		reader.Read(out TimeSpan timeSpan);
-		reader.Read(out TestBox testBox);
+		reader.Read(out bool boolValue);
+		reader.Read(out char charValue);
+		reader.Read(out byte byteValue);
+		reader.Read(out sbyte sbyteValue);
+		reader.Read(out short shortValue);
+		reader.Read(out ushort ushortValue);
+		reader.Read(out int intValue);
+		reader.Read(out uint uintValue);
+		reader.Read(out long longValue);
+		reader.Read(out ulong ulongValue);
+		reader.Read(out float floatValue);
+		reader.Read(out double doubleValue);
+		reader.Read(out decimal decimalValue);
+		reader.Read(out string stringValue);
+		reader.Read(out DateTime dateTimeValue);
+		reader.Read(out TimeSpan timeSpanValue);
+		reader.Read(out TestBox testBoxValue);
 
 		reader.ReadNullable(out bool? boolNull);
 		reader.ReadNullable(out char? charNull);
@@ -212,6 +284,24 @@ public class Test
 		reader.ReadNullable(out DateTime? dateTimeNull);
 		reader.ReadNullable(out TimeSpan? timeSpanNull);
 		reader.ReadNullable(out TestBox? testBoxNull);
+
+		reader.ReadNullable(out bool? boolNonNull);
+		reader.ReadNullable(out char? charNonNull);
+		reader.ReadNullable(out byte? byteNonNull);
+		reader.ReadNullable(out sbyte? sbyteNonNull);
+		reader.ReadNullable(out short? shortNonNull);
+		reader.ReadNullable(out ushort? ushortNonNull);
+		reader.ReadNullable(out int? intNonNull);
+		reader.ReadNullable(out uint? uintNonNull);
+		reader.ReadNullable(out long? longNonNull);
+		reader.ReadNullable(out ulong? ulongNonNull);
+		reader.ReadNullable(out float? floatNonNull);
+		reader.ReadNullable(out double? doubleNonNull);
+		reader.ReadNullable(out decimal? decimalNonNull);
+		reader.ReadNullable(out string? stringNonNull);
+		reader.ReadNullable(out DateTime? dateTimeNonNull);
+		reader.ReadNullable(out TimeSpan? timeSpanNonNull);
+		reader.ReadNullable(out TestBox? testBoxNonNull);
 
 		reader.Read(out bool[] boolArray);
 		reader.Read(out char[] charArray);
@@ -249,23 +339,41 @@ public class Test
 		reader.ReadNullable(out TimeSpan[]? timeSpanNullArray);
 		reader.ReadNullable(out TestBox[]? testBoxNullArray);
 
-		AssertEquality(this.@bool, @bool);
-		AssertEquality(this.@char, @char);
-		AssertEquality(this.@byte, @byte);
-		AssertEquality(this.@sbyte, @sbyte);
-		AssertEquality(this.@short, @short);
-		AssertEquality(this.@ushort, @ushort);
-		AssertEquality(this.@int, @int);
-		AssertEquality(this.@uint, @uint);
-		AssertEquality(this.@long, @long);
-		AssertEquality(this.@ulong, @ulong);
-		AssertEquality(this.@float, @float);
-		AssertEquality(this.@double, @double);
-		AssertEquality(this.@decimal, @decimal);
-		AssertEquality(this.@string, @string);
-		AssertEquality(this.dateTime, dateTime);
-		AssertEquality(this.timeSpan, timeSpan);
-		AssertEquality(this.testBox, testBox);
+		reader.ReadNullable(out bool[]? boolNonNullArray);
+		reader.ReadNullable(out char[]? charNonNullArray);
+		reader.ReadNullable(out byte[]? byteNonNullArray);
+		reader.ReadNullable(out sbyte[]? sbyteNonNullArray);
+		reader.ReadNullable(out short[]? shortNonNullArray);
+		reader.ReadNullable(out ushort[]? ushortNonNullArray);
+		reader.ReadNullable(out int[]? intNonNullArray);
+		reader.ReadNullable(out uint[]? uintNonNullArray);
+		reader.ReadNullable(out long[]? longNonNullArray);
+		reader.ReadNullable(out ulong[]? ulongNonNullArray);
+		reader.ReadNullable(out float[]? floatNonNullArray);
+		reader.ReadNullable(out double[]? doubleNonNullArray);
+		reader.ReadNullable(out decimal[]? decimalNonNullArray);
+		reader.ReadNullable(out string[]? stringNonNullArray);
+		reader.ReadNullable(out DateTime[]? dateTimeNonNullArray);
+		reader.ReadNullable(out TimeSpan[]? timeSpanNonNullArray);
+		reader.ReadNullable(out TestBox[]? testBoxNonNullArray);
+
+		AssertEquality(this.boolValue, boolValue);
+		AssertEquality(this.charValue, charValue);
+		AssertEquality(this.byteValue, byteValue);
+		AssertEquality(this.sbyteValue, sbyteValue);
+		AssertEquality(this.shortValue, shortValue);
+		AssertEquality(this.ushortValue, ushortValue);
+		AssertEquality(this.intValue, intValue);
+		AssertEquality(this.uintValue, uintValue);
+		AssertEquality(this.longValue, longValue);
+		AssertEquality(this.ulongValue, ulongValue);
+		AssertEquality(this.floatValue, floatValue);
+		AssertEquality(this.doubleValue, doubleValue);
+		AssertEquality(this.decimalValue, decimalValue);
+		AssertEquality(this.stringValue, stringValue);
+		AssertEquality(this.dateTimeValue, dateTimeValue);
+		AssertEquality(this.timeSpanValue, timeSpanValue);
+		AssertEquality(this.testBoxValue, testBoxValue);
 
 		AssertEquality(this.boolNull, boolNull);
 		AssertEquality(this.charNull, charNull);
@@ -284,6 +392,24 @@ public class Test
 		AssertEquality(this.dateTimeNull, dateTimeNull);
 		AssertEquality(this.timeSpanNull, timeSpanNull);
 		AssertEquality(this.testBoxNull, testBoxNull);
+
+		AssertEquality(this.boolNonNull, boolNonNull);
+		AssertEquality(this.charNonNull, charNonNull);
+		AssertEquality(this.byteNonNull, byteNonNull);
+		AssertEquality(this.sbyteNonNull, sbyteNonNull);
+		AssertEquality(this.shortNonNull, shortNonNull);
+		AssertEquality(this.ushortNonNull, ushortNonNull);
+		AssertEquality(this.intNonNull, intNonNull);
+		AssertEquality(this.uintNonNull, uintNonNull);
+		AssertEquality(this.longNonNull, longNonNull);
+		AssertEquality(this.ulongNonNull, ulongNonNull);
+		AssertEquality(this.floatNonNull, floatNonNull);
+		AssertEquality(this.doubleNonNull, doubleNonNull);
+		AssertEquality(this.decimalNonNull, decimalNonNull);
+		AssertEquality(this.stringNonNull, stringNonNull);
+		AssertEquality(this.dateTimeNonNull, dateTimeNonNull);
+		AssertEquality(this.timeSpanNonNull, timeSpanNonNull);
+		AssertEquality(this.testBoxNonNull, testBoxNonNull);
 
 		AssertEquality(this.boolArray, boolArray);
 		AssertEquality(this.charArray, charArray);
@@ -320,6 +446,24 @@ public class Test
 		AssertEquality(this.dateTimeNullArray, dateTimeNullArray);
 		AssertEquality(this.timeSpanNullArray, timeSpanNullArray);
 		AssertEquality(this.testBoxNullArray, testBoxNullArray);
+
+		AssertEquality(this.boolNonNullArray, boolNonNullArray);
+		AssertEquality(this.charNonNullArray, charNonNullArray);
+		AssertEquality(this.byteNonNullArray, byteNonNullArray);
+		AssertEquality(this.sbyteNonNullArray, sbyteNonNullArray);
+		AssertEquality(this.shortNonNullArray, shortNonNullArray);
+		AssertEquality(this.ushortNonNullArray, ushortNonNullArray);
+		AssertEquality(this.intNonNullArray, intNonNullArray);
+		AssertEquality(this.uintNonNullArray, uintNonNullArray);
+		AssertEquality(this.longNonNullArray, longNonNullArray);
+		AssertEquality(this.ulongNonNullArray, ulongNonNullArray);
+		AssertEquality(this.floatNonNullArray, floatNonNullArray);
+		AssertEquality(this.doubleNonNullArray, doubleNonNullArray);
+		AssertEquality(this.decimalNonNullArray, decimalNonNullArray);
+		AssertEquality(this.stringNonNullArray, stringNonNullArray);
+		AssertEquality(this.dateTimeNonNullArray, dateTimeNonNullArray);
+		AssertEquality(this.timeSpanNonNullArray, timeSpanNonNullArray);
+		AssertEquality(this.testBoxNonNullArray, testBoxNonNullArray);
 	}
 
 	private static void AssertEquality<T>(T t1, T t2)
