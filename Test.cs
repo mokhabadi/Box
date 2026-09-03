@@ -248,7 +248,7 @@ public class Test
 
 		public override bool Equals(object? obj)
 		{
-			return obj is TestBox testBox && id == testBox.id && name == testBox.name;
+			return obj is TestBox testBox && id == testBox.id && name == testBox.name && innerBox.Equals(testBox.innerBox);
 		}
 
 		public class InnerBox : IBox
@@ -268,6 +268,11 @@ public class Test
 			public void ReadFrom(IReader reader)
 			{
 				reader.Read(out dimensions);
+			}
+			
+			public override bool Equals(object? obj)
+			{
+				return obj is InnerBox other && dimensions.SequenceEqual(other.dimensions);
 			}
 		}
 	}
