@@ -19,7 +19,7 @@ public class Printer(BinaryReader binaryReader)
 			foreach (string line in lines)
 			{
 				if (line.StartsWith('}')) indent--;
-				result.Append(' ', indent * 4);
+				result.Append(' ', indent * 3);
 				if (line.StartsWith('{')) indent++;
 				result.AppendLine(line);
 			}

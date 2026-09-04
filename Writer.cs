@@ -74,24 +74,29 @@ public class Writer(BinaryWriter binaryWriter) : IWriter
 
 	private void WriteValue<T>(T value)
 	{
-		if (value is IBox bit) WriteObject(bit);
-		else if (value is bool @bool) binaryWriter.Write(@bool);
-		else if (value is char @char) binaryWriter.Write(@char);
-		else if (value is byte @byte) binaryWriter.Write(@byte);
-		else if (value is sbyte @sbyte) binaryWriter.Write(@sbyte);
-		else if (value is short @short) binaryWriter.Write(@short);
-		else if (value is ushort @ushort) binaryWriter.Write(@ushort);
-		else if (value is int @int) binaryWriter.Write(@int);
-		else if (value is uint @uint) binaryWriter.Write(@uint);
-		else if (value is long @long) binaryWriter.Write(@long);
-		else if (value is ulong @ulong) binaryWriter.Write(@ulong);
-		else if (value is float @float) binaryWriter.Write(@float);
-		else if (value is double @double) binaryWriter.Write(@double);
-		else if (value is decimal @decimal) binaryWriter.Write(@decimal);
-		else if (value is string @string) binaryWriter.Write(@string);
-		else if (value is DateTime dateTime) binaryWriter.Write(dateTime.ToBinary());
-		else if (value is TimeSpan timeSpan) binaryWriter.Write(timeSpan.Ticks);
-		else throw new NotSupportedException(typeof(T).Name);
+		Action action = value switch
+		{
+			bool @bool => () => binaryWriter.Write(@bool),
+			char @char => () => binaryWriter.Write(@char),
+			byte @byte => () => binaryWriter.Write(@byte),
+			sbyte @sbyte => () => binaryWriter.Write(@sbyte),
+			short @short => () => binaryWriter.Write(@short),
+			ushort @ushort => () => binaryWriter.Write(@ushort),
+			int @int => () => binaryWriter.Write(@int),
+			uint @uint => () => binaryWriter.Write(@uint),
+			long @long => () => binaryWriter.Write(@long),
+			ulong @ulong => () => binaryWriter.Write(@ulong),
+			float @float => () => binaryWriter.Write(@float),
+			double @double => () => binaryWriter.Write(@double),
+			decimal @decimal => () => binaryWriter.Write(@decimal),
+			string @string => () => binaryWriter.Write(@string),
+			DateTime dateTime => () => binaryWriter.Write(dateTime.ToBinary()),
+			TimeSpan timeSpan => () => binaryWriter.Write(timeSpan.Ticks),
+			IBox box => () => WriteObject(box),
+			_ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
+		};
+		
+		action();
 	}
 
 	private void WriteObject(IBox box)
@@ -99,5 +104,15 @@ public class Writer(BinaryWriter binaryWriter) : IWriter
 		WriteChar('{');
 		box.WriteTo(this);
 		WriteChar('}');
+	}
+
+	public static byte[] WriteToByteArray(IBox box)
+	{
+		using MemoryStream memoryStream = new();
+		using BinaryWriter binaryWriter = new(memoryStream);
+		Writer writer = new(binaryWriter);
+		writer.Write(box);
+		byte[] bytes = memoryStream.ToArray();
+		return bytes;
 	}
 }

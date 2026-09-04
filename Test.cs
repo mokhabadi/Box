@@ -23,7 +23,7 @@ public class Test
 	private readonly string stringValue = "Hello World";
 	private readonly DateTime dateTimeValue = new(2000, 1, 1);
 	private readonly TimeSpan timeSpanValue = new(10, 10, 10);
-	private readonly TestBox testBoxValue = new(333, "test_box", new TestBox.InnerBox([4.4f, 4.5f, 4.6f]));
+	private readonly TestBox testBoxValue = new(333, "test_box", new([4.4f, 4.5f, 4.6f]));
 
 	private readonly bool? boolNull = null;
 	private readonly char? charNull = null;
@@ -43,23 +43,23 @@ public class Test
 	private readonly TimeSpan? timeSpanNull = null;
 	private readonly TestBox? testBoxNull = null;
 
-	private readonly bool? boolNonNull =  true;
-	private readonly char? charNonNull =  'M';
-	private readonly byte? byteNonNull =  199;
-	private readonly sbyte? sbyteNonNull =  -77;
-	private readonly short? shortNonNull =  32000;
-	private readonly ushort? ushortNonNull =  64000;
-	private readonly int? intNonNull =  -123456;
-	private readonly uint? uintNonNull =  654321;
-	private readonly long? longNonNull =  -9876543210;
-	private readonly ulong? ulongNonNull =  9123456789;
-	private readonly float? floatNonNull =  55.55f;
-	private readonly double? doubleNonNull =  22.22;
-	private readonly decimal? decimalNonNull =  66.66m;
-	private readonly string? stringNonNull =  "Hello World";
-	private readonly DateTime? dateTimeNonNull =  new(2000, 1, 1);
-	private readonly TimeSpan? timeSpanNonNull =  new(10, 10, 10);
-	private readonly TestBox? testBoxNonNull =  new(333, "test_box", new TestBox.InnerBox([4.4f, 4.5f, 4.6f]));
+	private readonly bool? boolNonNull = true;
+	private readonly char? charNonNull = 'M';
+	private readonly byte? byteNonNull = 199;
+	private readonly sbyte? sbyteNonNull = -77;
+	private readonly short? shortNonNull = 32000;
+	private readonly ushort? ushortNonNull = 64000;
+	private readonly int? intNonNull = -123456;
+	private readonly uint? uintNonNull = 654321;
+	private readonly long? longNonNull = -9876543210;
+	private readonly ulong? ulongNonNull = 9123456789;
+	private readonly float? floatNonNull = 55.55f;
+	private readonly double? doubleNonNull = 22.22;
+	private readonly decimal? decimalNonNull = 66.66m;
+	private readonly string? stringNonNull = "Hello World";
+	private readonly DateTime? dateTimeNonNull = new(2000, 1, 1);
+	private readonly TimeSpan? timeSpanNonNull = new(10, 10, 10);
+	private readonly TestBox? testBoxNonNull = new(333, "test_box", new([4.4f, 4.5f, 4.6f]));
 
 	private readonly bool[] boolArray = [true, false, true, false];
 	private readonly char[] charArray = ['A', 'B', 'C', 'D', 'E', 'F'];
@@ -77,7 +77,7 @@ public class Test
 	private readonly string[] stringArray = ["alice", "bob"];
 	private readonly DateTime[] dateTimeArray = [new(2026, 6, 6), new(2027, 7, 7)];
 	private readonly TimeSpan[] timeSpanArray = [TimeSpan.FromSeconds(5), TimeSpan.FromMinutes(30)];
-	private readonly TestBox[] testBoxArray = [new TestBox(1, "one", new TestBox.InnerBox([1, 1, 1])), new(2, "two", new TestBox.InnerBox([2, 2, 2]))];
+	private readonly TestBox[] testBoxArray = [new TestBox(1, "one", new([1, 1, 1])), new(2, "two", new([2, 2, 2]))];
 
 	private readonly bool[]? boolNullArray = null;
 	private readonly char[]? charNullArray = null;
@@ -113,7 +113,7 @@ public class Test
 	private readonly string[]? stringNonNullArray = ["alice", "bob"];
 	private readonly DateTime[]? dateTimeNonNullArray = [new(2026, 6, 6), new(2027, 7, 7)];
 	private readonly TimeSpan[]? timeSpanNonNullArray = [TimeSpan.FromSeconds(5), TimeSpan.FromMinutes(30)];
-	private readonly TestBox[]? testBoxNonNullArray = [new TestBox(1, "one", new TestBox.InnerBox([1, 1, 1])), new(2, "two", new TestBox.InnerBox([2, 2, 2]))];
+	private readonly TestBox[]? testBoxNonNullArray = [new TestBox(1, "one", new([1, 1, 1])), new(2, "two", new([2, 2, 2]))];
 
 	public void Execute()
 	{
@@ -134,7 +134,7 @@ public class Test
 	{
 		BinaryWriter binaryWriter = new(stream);
 		IWriter writer = new Writer(binaryWriter);
-		
+
 		writer.Write(boolValue);
 		writer.Write(charValue);
 		writer.Write(byteValue);
@@ -241,6 +241,13 @@ public class Test
 		writer.WriteNullable(stringNonNullArray);
 		writer.WriteNullable(dateTimeNonNullArray);
 		writer.WriteNullable(timeSpanNonNullArray);
+		writer.WriteNullable(testBoxNonNullArray);
+
+		writer.Write(testBoxValue);
+		writer.WriteNullable(testBoxNull);
+		writer.WriteNullable(testBoxNonNull);
+		writer.Write(testBoxArray);
+		writer.WriteNullable(testBoxNullArray);
 		writer.WriteNullable(testBoxNonNullArray);
 	}
 
@@ -357,6 +364,13 @@ public class Test
 		reader.ReadNullable(out TimeSpan[]? timeSpanNonNullArray);
 		reader.ReadNullable(out TestBox[]? testBoxNonNullArray);
 
+		TestBox testBox1 = reader.Read(default(TestBox), nameof(testBoxValue));
+		TestBox? testBox2 = reader.ReadNullable(default(TestBox), nameof(testBoxNull));
+		TestBox? testBox3 = reader.ReadNullable(default(TestBox), nameof(testBoxNonNull));
+		TestBox[] testBoxes1 = reader.Read(default(TestBox[]), nameof(testBoxArray));
+		TestBox[]? testBoxes2 = reader.ReadNullable(default(TestBox[]), nameof(testBoxNullArray));
+		TestBox[]? testBoxes3 = reader.ReadNullable(default(TestBox[]), nameof(testBoxNonNullArray));
+
 		AssertEquality(this.boolValue, boolValue);
 		AssertEquality(this.charValue, charValue);
 		AssertEquality(this.byteValue, byteValue);
@@ -464,6 +478,13 @@ public class Test
 		AssertEquality(this.dateTimeNonNullArray, dateTimeNonNullArray);
 		AssertEquality(this.timeSpanNonNullArray, timeSpanNonNullArray);
 		AssertEquality(this.testBoxNonNullArray, testBoxNonNullArray);
+		
+		AssertEquality(testBox1, testBoxValue);
+		AssertEquality(testBox2, testBoxNull);
+		AssertEquality(testBox3, testBoxNonNull);
+		AssertEquality(testBoxes1, testBoxArray);
+		AssertEquality(testBoxes2, testBoxNullArray);
+		AssertEquality(testBoxes3, testBoxNonNullArray);
 	}
 
 	private static void AssertEquality<T>(T t1, T t2)
@@ -479,63 +500,67 @@ public class Test
 
 	private class TestBox : IBox
 	{
-		private int id;
-		private string name;
-		private InnerBox innerBox;
+		public int Id { get; private set; }
+		public string Name { get; private set; }
+		public InnerBox InnerBox { get; private set; }
 
 		public TestBox(int id, string name, InnerBox innerBox)
 		{
-			this.id = id;
-			this.name = name;
-			this.innerBox = innerBox;
+			Id = id;
+			Name = name;
+			InnerBox = innerBox;
 		}
 
 		public void WriteTo(IWriter writer)
 		{
-			writer.Write(id);
-			writer.Write(name);
-			writer.Write(innerBox);
+			writer.Write(Id);
+			writer.Write(Name);
+			writer.Write(InnerBox);
 		}
 
 		public void ReadFrom(IReader reader)
 		{
-			reader.Read(out id);
-			reader.Read(out name);
-			reader.Read(out innerBox);
+			Id = reader.Read(Id);
+			Name = reader.Read(Name);
+			InnerBox = reader.Read(InnerBox);
 		}
 
 		public override bool Equals(object? obj)
 		{
-			return obj is TestBox testBox && id == testBox.id && name == testBox.name && innerBox.Equals(testBox.innerBox);
+			return obj is TestBox testBox && Id == testBox.Id && Name == testBox.Name && InnerBox.Equals(testBox.InnerBox);
 		}
 
 		public override int GetHashCode() => 0;
 
-		public class InnerBox : IBox
+		public override string ToString() => $"id: {Id}, name: {Name}, innerBox: {InnerBox}";
+	}
+
+	public class InnerBox : IBox
+	{
+		public float[] Dimensions { get; private set; }
+
+		public InnerBox(float[] dimensions)
 		{
-			private float[] dimensions;
-
-			public InnerBox(float[] dimensions)
-			{
-				this.dimensions = dimensions;
-			}
-
-			public void WriteTo(IWriter writer)
-			{
-				writer.Write(dimensions);
-			}
-
-			public void ReadFrom(IReader reader)
-			{
-				reader.Read(out dimensions);
-			}
-
-			public override bool Equals(object? obj)
-			{
-				return obj is InnerBox other && dimensions.SequenceEqual(other.dimensions);
-			}
-
-			public override int GetHashCode() => 0;
+			Dimensions = dimensions;
 		}
+
+		public void WriteTo(IWriter writer)
+		{
+			writer.Write(Dimensions);
+		}
+
+		public void ReadFrom(IReader reader)
+		{
+			Dimensions = reader.Read(Dimensions);
+		}
+
+		public override bool Equals(object? obj)
+		{
+			return obj is InnerBox other && Dimensions.SequenceEqual(other.Dimensions);
+		}
+
+		public override int GetHashCode() => 0;
+
+		public override string ToString() => $"[{string.Join(',', Dimensions)}]')]";
 	}
 }
