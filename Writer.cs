@@ -43,17 +43,12 @@ public class Writer(BinaryWriter binaryWriter) : IWriter
 
 	private void WriteTypeAndKey<T>(string key)
 	{
-		Type type = GetType<T>();
+		Type type = typeof(T);
+		type = Nullable.GetUnderlyingType(type) ?? type;
+		if(type.IsAssignableTo(typeof(IBox))) type = typeof(object);
 		string typeName = type.Name;
 		binaryWriter.Write(typeName);
 		binaryWriter.Write(key.Trim());
-	}
-
-	private Type GetType<T>()
-	{
-		Type type = typeof(T);
-		Type? nullableType = Nullable.GetUnderlyingType(type);
-		return nullableType ?? type;
 	}
 
 	private void WriteHasValue<T>(T? value)
@@ -92,17 +87,17 @@ public class Writer(BinaryWriter binaryWriter) : IWriter
 			string @string => () => binaryWriter.Write(@string),
 			DateTime dateTime => () => binaryWriter.Write(dateTime.ToBinary()),
 			TimeSpan timeSpan => () => binaryWriter.Write(timeSpan.Ticks),
-			IBox box => () => WriteObject(box),
+			object @object => () => WriteObject(@object),
 			_ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
 		};
 		
 		action();
 	}
 
-	private void WriteObject(IBox box)
+	private void WriteObject(object @object)
 	{
 		WriteChar('{');
-		box.WriteTo(this);
+		((IBox)@object).WriteTo(this);
 		WriteChar('}');
 	}
 

@@ -69,7 +69,9 @@ public class Reader(BinaryReader binaryReader) : IReader
 
 	private string ReadTypeAndKey<T>(string expectedKey)
 	{
-		Type type = GetType<T>();
+		Type type = typeof(T);
+		type = Nullable.GetUnderlyingType(type) ?? type;
+		if(type.IsAssignableTo(typeof(IBox))) type = typeof(object);
 		string expectedTypeName = type.Name;
 		string typeName = binaryReader.ReadString();
 		if (typeName != expectedTypeName) throw new Exception($"type mismatch '{typeName}', expected '{expectedTypeName}'");
@@ -78,13 +80,6 @@ public class Reader(BinaryReader binaryReader) : IReader
 		if (key != expectedKey) throw new Exception($"value mismatch '{key}', expected '{expectedKey}'");
 		if (type.IsAssignableTo(typeof(IBox))) typeName = nameof(IBox);
 		return typeName;
-	}
-
-	private Type GetType<T>()
-	{
-		Type type = typeof(T);
-		Type? nullableType = Nullable.GetUnderlyingType(type);
-		return nullableType ?? type;
 	}
 
 	private void ReadChar(char expectedValue)
@@ -127,7 +122,7 @@ public class Reader(BinaryReader binaryReader) : IReader
 			nameof(String) => (T)(object)binaryReader.ReadString(),
 			nameof(DateTime) => (T)(object)DateTime.FromBinary(binaryReader.ReadInt64()),
 			nameof(TimeSpan) => (T)(object)TimeSpan.FromTicks(binaryReader.ReadInt64()),
-			nameof(IBox) => ReadObject<T>(),
+			nameof(Object) => ReadObject<T>(),
 			_ => throw new ArgumentOutOfRangeException(nameof(typeName), typeName, null)
 		};
 	}
