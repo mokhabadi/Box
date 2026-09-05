@@ -30,48 +30,47 @@ public class Reader(BinaryReader binaryReader) : IReader
 	{
 		string typeName = ReadTypeAndKey<T>(key);
 		value = ReadValue<T>(typeName);
+		ReadChar('|');
 		return value;
 	}
 
 	public T? ReadNullable<T>(T? value, [CallerArgumentExpression(nameof(value))] string key = "")
 	{
 		bool hasValue = ReadHasValue();
-		string typeName = ReadTypeAndKey<T>(key);
-		value = hasValue ? ReadValue<T>(typeName) : default;
+		if (hasValue) return Read(value, key);
+		ReadTypeAndKey<T>(key);
+		ReadChar('|');
 		return value;
 	}
 
 	public T[] Read<T>(T[]? value, [CallerArgumentExpression(nameof(value))] string key = "")
 	{
 		ReadChar('A');
-		int length = ReadLength();
+		int length = binaryReader.Read7BitEncodedInt();
 		string typeName = ReadTypeAndKey<T>(key);
 		value = new T[length];
 		ReadChar('[');
 		for (int i = 0; i < length; i++) value[i] = ReadValue<T>(typeName);
 		ReadChar(']');
+		ReadChar('|');
 		return value;
 	}
 
 	public T[]? ReadNullable<T>(T[]? value, [CallerArgumentExpression(nameof(value))] string key = "")
 	{
 		bool hasValue = ReadHasValue();
+		if (hasValue) return Read(value, key);
 		ReadChar('A');
-		int length = hasValue ? ReadLength() : 0;
-		value = hasValue ? new T[length] : null;
-		string typeName = ReadTypeAndKey<T>(key);
-		if (value == null) return null;
-		ReadChar('[');
-		for (int i = 0; i < value.Length; i++) value[i] = ReadValue<T>(typeName);
-		ReadChar(']');
-		return value;
+		ReadTypeAndKey<T>(key);
+		ReadChar('|');
+		return null;
 	}
 
 	private string ReadTypeAndKey<T>(string expectedKey)
 	{
 		Type type = typeof(T);
 		type = Nullable.GetUnderlyingType(type) ?? type;
-		if(type.IsAssignableTo(typeof(IBox))) type = typeof(object);
+		if (type.IsAssignableTo(typeof(IBox))) type = typeof(object);
 		string expectedTypeName = type.Name;
 		string typeName = binaryReader.ReadString();
 		if (typeName != expectedTypeName) throw new Exception($"type mismatch '{typeName}', expected '{expectedTypeName}'");
@@ -94,12 +93,6 @@ public class Reader(BinaryReader binaryReader) : IReader
 		if (hasValue == 'T') return true;
 		if (hasValue == 'F') return false;
 		throw new Exception($"undefined value state: '{hasValue}'");
-	}
-
-	private int ReadLength()
-	{
-		int length = binaryReader.Read7BitEncodedInt();
-		return length;
 	}
 
 	private T ReadValue<T>(string typeName)

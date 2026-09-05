@@ -10,6 +10,7 @@ public class Writer(BinaryWriter binaryWriter) : IWriter
 	{
 		WriteTypeAndKey<T>(key);
 		WriteValue(value);
+		WriteChar('|');
 	}
 
 	public void WriteNullable<T>(T? value, [CallerArgumentExpression(nameof(value))] string key = "")
@@ -17,38 +18,39 @@ public class Writer(BinaryWriter binaryWriter) : IWriter
 		WriteHasValue(value);
 		WriteTypeAndKey<T>(key);
 		if (value != null) WriteValue(value);
+		WriteChar('|');
 	}
 
-	public void Write<T>(T[] value, [CallerArgumentExpression(nameof(value))] string key = "")
+	public bool Write<T>(T[] value, [CallerArgumentExpression(nameof(value))] string key = "")
 	{
 		WriteChar('A');
-		WriteLength(value.Length);
+		binaryWriter.Write7BitEncodedInt(value.Length);
 		WriteTypeAndKey<T>(key);
 		WriteChar('[');
 		foreach (T item in value) WriteValue(item);
 		WriteChar(']');
+		WriteChar('|');
+		return true;
 	}
 
-	public void WriteNullable<T>(T[]? value, [CallerArgumentExpression(nameof(value))] string key = "")
+	public bool WriteNullable<T>(T[]? value, [CallerArgumentExpression(nameof(value))] string key = "")
 	{
 		WriteHasValue(value);
+		if (value != null) return Write(value, key);
 		WriteChar('A');
-		if (value != null) WriteLength(value.Length);
 		WriteTypeAndKey<T>(key);
-		if (value == null) return;
-		WriteChar('[');
-		foreach (T item in value) WriteValue(item);
-		WriteChar(']');
+		WriteChar('|');
+		return true;
 	}
 
 	private void WriteTypeAndKey<T>(string key)
 	{
 		Type type = typeof(T);
 		type = Nullable.GetUnderlyingType(type) ?? type;
-		if(type.IsAssignableTo(typeof(IBox))) type = typeof(object);
+		if (type.IsAssignableTo(typeof(IBox))) type = typeof(object);
 		string typeName = type.Name;
 		binaryWriter.Write(typeName);
-		binaryWriter.Write(key.Trim());
+		binaryWriter.Write(key);
 	}
 
 	private void WriteHasValue<T>(T? value)
@@ -60,11 +62,6 @@ public class Writer(BinaryWriter binaryWriter) : IWriter
 	private void WriteChar(char value)
 	{
 		binaryWriter.Write(value);
-	}
-
-	private void WriteLength(int length)
-	{
-		binaryWriter.Write7BitEncodedInt(length);
 	}
 
 	private void WriteValue<T>(T value)
@@ -90,7 +87,7 @@ public class Writer(BinaryWriter binaryWriter) : IWriter
 			object @object => () => WriteObject(@object),
 			_ => throw new NotSupportedException(typeof(T).Name)
 		};
-		
+
 		action();
 	}
 

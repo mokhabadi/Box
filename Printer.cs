@@ -54,6 +54,7 @@ public class Printer(BinaryReader binaryReader)
 		string typeName = binaryReader.ReadString();
 		string key = binaryReader.ReadString();
 		string value = hasValue ? isArray ? PrintArray(typeName, arrayLength) : PrintValue(typeName) : "null";
+		ReadChar('|');
 		string result = $"{typeName}{(isArray ? $"[{(hasValue ? arrayLength : "")}]" : "")}{(isNullable ? "?" : "")} {key} = {value};";
 		return result;
 	}

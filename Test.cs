@@ -188,7 +188,7 @@ public class Test
 		writer.WriteNullable(dateTimeNonNull);
 		writer.WriteNullable(timeSpanNonNull);
 		writer.WriteNullable(testBoxNonNull);
-
+		
 		writer.Write(boolArray);
 		writer.Write(charArray);
 		writer.Write(byteArray);
@@ -206,7 +206,7 @@ public class Test
 		writer.Write(dateTimeArray);
 		writer.Write(timeSpanArray);
 		writer.Write(testBoxArray);
-
+		
 		writer.WriteNullable(boolNullArray);
 		writer.WriteNullable(charNullArray);
 		writer.WriteNullable(byteNullArray);
@@ -224,7 +224,7 @@ public class Test
 		writer.WriteNullable(dateTimeNullArray);
 		writer.WriteNullable(timeSpanNullArray);
 		writer.WriteNullable(testBoxNullArray);
-
+		
 		writer.WriteNullable(boolNonNullArray);
 		writer.WriteNullable(charNonNullArray);
 		writer.WriteNullable(byteNonNullArray);
@@ -242,7 +242,7 @@ public class Test
 		writer.WriteNullable(dateTimeNonNullArray);
 		writer.WriteNullable(timeSpanNonNullArray);
 		writer.WriteNullable(testBoxNonNullArray);
-
+		
 		writer.Write(testBoxValue);
 		writer.WriteNullable(testBoxNull);
 		writer.WriteNullable(testBoxNonNull);
