@@ -88,7 +88,7 @@ public class Writer(BinaryWriter binaryWriter) : IWriter
 			DateTime dateTime => () => binaryWriter.Write(dateTime.ToBinary()),
 			TimeSpan timeSpan => () => binaryWriter.Write(timeSpan.Ticks),
 			object @object => () => WriteObject(@object),
-			_ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
+			_ => throw new NotSupportedException(typeof(T).Name)
 		};
 		
 		action();

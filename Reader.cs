@@ -11,16 +11,26 @@ public class Reader(BinaryReader binaryReader) : IReader
 		value = Read(default(T), key);
 	}
 
+	public void ReadNullable<T>(out T? value, [CallerArgumentExpression(nameof(value))] string key = "")
+	{
+		value = ReadNullable(default(T), key);
+	}
+
+	public void Read<T>(out T[] value, [CallerArgumentExpression(nameof(value))] string key = "")
+	{
+		value = Read(default(T[]), key);
+	}
+
+	public void ReadNullable<T>(out T[]? value, [CallerArgumentExpression(nameof(value))] string key = "")
+	{
+		value = ReadNullable(default(T[]), key);
+	}
+
 	public T Read<T>(T? value, [CallerArgumentExpression(nameof(value))] string key = "")
 	{
 		string typeName = ReadTypeAndKey<T>(key);
 		value = ReadValue<T>(typeName);
 		return value;
-	}
-
-	public void ReadNullable<T>(out T? value, [CallerArgumentExpression(nameof(value))] string key = "")
-	{
-		value = ReadNullable(default(T), key);
 	}
 
 	public T? ReadNullable<T>(T? value, [CallerArgumentExpression(nameof(value))] string key = "")
@@ -29,11 +39,6 @@ public class Reader(BinaryReader binaryReader) : IReader
 		string typeName = ReadTypeAndKey<T>(key);
 		value = hasValue ? ReadValue<T>(typeName) : default;
 		return value;
-	}
-
-	public void Read<T>(out T[] value, [CallerArgumentExpression(nameof(value))] string key = "")
-	{
-		value = Read(default(T[]), key);
 	}
 
 	public T[] Read<T>(T[]? value, [CallerArgumentExpression(nameof(value))] string key = "")
@@ -46,11 +51,6 @@ public class Reader(BinaryReader binaryReader) : IReader
 		for (int i = 0; i < length; i++) value[i] = ReadValue<T>(typeName);
 		ReadChar(']');
 		return value;
-	}
-
-	public void ReadNullable<T>(out T[]? value, [CallerArgumentExpression(nameof(value))] string key = "")
-	{
-		value = ReadNullable(default(T[]), key);
 	}
 
 	public T[]? ReadNullable<T>(T[]? value, [CallerArgumentExpression(nameof(value))] string key = "")
@@ -123,7 +123,7 @@ public class Reader(BinaryReader binaryReader) : IReader
 			nameof(DateTime) => (T)(object)DateTime.FromBinary(binaryReader.ReadInt64()),
 			nameof(TimeSpan) => (T)(object)TimeSpan.FromTicks(binaryReader.ReadInt64()),
 			nameof(Object) => ReadObject<T>(),
-			_ => throw new ArgumentOutOfRangeException(nameof(typeName), typeName, null)
+			_ => throw new NotSupportedException(typeName)
 		};
 	}
 
