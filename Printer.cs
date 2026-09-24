@@ -3,7 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
-namespace BOX;
+namespace Box;
 
 public class Printer(BinaryReader binaryReader)
 {
