@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace Box;
 
@@ -124,9 +125,13 @@ public class Tester
 		byte[] bytes = memoryStream.ToArray();
 		string box = string.Concat(bytes.Select(b => b is >= 32 and <= 126 ? $"{(char)b}" : $"{b}"));
 		Trace.WriteLine(box);
-		Printer printer = new(new BinaryReader(memoryStream));
+		Printer printer = new(new BinaryReader(memoryStream), new StringBuilder());
 		string print = printer.Print();
 		Trace.WriteLine(print);
+		MemoryStream testMemoryStream = new(); 
+		Parser parser = new(new BinaryWriter(testMemoryStream), new StringStream(print));
+		parser.Parse();
+		Trace.WriteLine(string.Concat(testMemoryStream.ToArray().Select(b => b is >= 32 and <= 126 ? $"{(char)b}" : $"{b}")));
 		memoryStream.Position = 0;
 		Read(memoryStream);
 	}

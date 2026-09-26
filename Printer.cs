@@ -5,78 +5,87 @@ using System.Text;
 
 namespace Box;
 
-public class Printer(BinaryReader binaryReader)
+public class Printer(BinaryReader binaryReader, StringBuilder stringBuilder)
 {
 	public string Print()
 	{
-		StringBuilder stringBuilder = new();
-		while (binaryReader.BaseStream.Position < binaryReader.BaseStream.Length) PrintItem(stringBuilder);
+		while (binaryReader.BaseStream.Position < binaryReader.BaseStream.Length) PrintItem();
 		return stringBuilder.ToString();
 	}
 
-	private void PrintItem(StringBuilder stringBuilder)
+	private void PrintItem()
 	{
 		string type = binaryReader.ReadString();
 		string key = binaryReader.ReadString();
-		stringBuilder.Append($"{type} {key} = ");
 		char valueSign = binaryReader.ReadChar();
-		PrintValue(valueSign, type, stringBuilder);
+		stringBuilder.Append($"{type} {key} {valueSign} ");
+		PrintValue(type, valueSign);
+		binaryReader.ReadChar();
 	}
 
-	private void PrintValue(char valueSign, string type, StringBuilder stringBuilder)
+	private void PrintValue(string type, char valueSign)
 	{
 		if (valueSign == '~') stringBuilder.Append("null");
-		else if (type == nameof(Boolean)) stringBuilder.Append(binaryReader.ReadBoolean().ToString());
-		else if (type == nameof(Char)) stringBuilder.Append(binaryReader.ReadChar().ToString());
-		else if (type == nameof(Byte)) stringBuilder.Append(binaryReader.ReadByte().ToString());
-		else if (type == nameof(SByte)) stringBuilder.Append(binaryReader.ReadSByte().ToString());
-		else if (type == nameof(Int16)) stringBuilder.Append(binaryReader.ReadInt16().ToString());
-		else if (type == nameof(UInt16)) stringBuilder.Append(binaryReader.ReadUInt16().ToString());
-		else if (type == nameof(Int32)) stringBuilder.Append(binaryReader.ReadInt32().ToString());
-		else if (type == nameof(UInt32)) stringBuilder.Append(binaryReader.ReadUInt32().ToString());
-		else if (type == nameof(Int64)) stringBuilder.Append(binaryReader.ReadInt64().ToString());
-		else if (type == nameof(UInt64)) stringBuilder.Append(binaryReader.ReadUInt64().ToString());
+		else if (type == nameof(Boolean)) stringBuilder.Append(binaryReader.ReadBoolean());
+		else if (type == nameof(Char)) stringBuilder.Append(binaryReader.ReadChar());
+		else if (type == nameof(Byte)) stringBuilder.Append(binaryReader.ReadByte());
+		else if (type == nameof(SByte)) stringBuilder.Append(binaryReader.ReadSByte());
+		else if (type == nameof(Int16)) stringBuilder.Append(binaryReader.ReadInt16());
+		else if (type == nameof(UInt16)) stringBuilder.Append(binaryReader.ReadUInt16());
+		else if (type == nameof(Int32)) stringBuilder.Append(binaryReader.ReadInt32());
+		else if (type == nameof(UInt32)) stringBuilder.Append(binaryReader.ReadUInt32());
+		else if (type == nameof(Int64)) stringBuilder.Append(binaryReader.ReadInt64());
+		else if (type == nameof(UInt64)) stringBuilder.Append(binaryReader.ReadUInt64());
 		else if (type == nameof(Single)) stringBuilder.Append(binaryReader.ReadSingle().ToString(CultureInfo.InvariantCulture));
 		else if (type == nameof(Double)) stringBuilder.Append(binaryReader.ReadDouble().ToString(CultureInfo.InvariantCulture));
 		else if (type == nameof(Decimal)) stringBuilder.Append(binaryReader.ReadDecimal().ToString(CultureInfo.InvariantCulture));
-		else if (type == nameof(String)) stringBuilder.Append(binaryReader.ReadString());
+		else if (type == nameof(String)) PrintString();
 		else if (type == nameof(DateTime)) stringBuilder.Append(DateTime.FromBinary(binaryReader.ReadInt64()).ToString(CultureInfo.InvariantCulture));
 		else if (type == nameof(TimeSpan)) stringBuilder.Append(TimeSpan.FromTicks(binaryReader.ReadInt64()).ToString());
-		else if (type == typeof(char[]).Name) ReadArray(binaryReader.ReadChars, stringBuilder);
-		else if (type == typeof(byte[]).Name || type == typeof(sbyte[]).Name) ReadArray(binaryReader.ReadBytes, stringBuilder);
-		else if (type.EndsWith("[]")) ReadArray(type[..^2], stringBuilder);
-		else ReadObject(stringBuilder);
-		stringBuilder.Append(binaryReader.ReadChar()+ " ");
+		else if (type.EndsWith("[]")) PrintArray(type[..^2]);
+		else PrintObject();
+		stringBuilder.Append(';');
 	}
 
-	private void ReadObject(StringBuilder stringBuilder)
+	private void PrintObject()
 	{
 		stringBuilder.Append(binaryReader.ReadChar());
-		while (binaryReader.PeekChar() != '}') PrintItem(stringBuilder);
+		while (binaryReader.PeekChar() != '}') PrintItem();
 		stringBuilder.Append(binaryReader.ReadChar());
 	}
 
-	private void ReadArray(string type, StringBuilder stringBuilder)
+	private void PrintString()
+	{
+		string value  = binaryReader.ReadString();
+		stringBuilder.Append(value.Length);
+		stringBuilder.Append('"');
+		stringBuilder.Append(value);
+		stringBuilder.Append('"');
+	}
+
+	private void PrintArray(string type)
 	{
 		int length = binaryReader.Read7BitEncodedInt();
-		stringBuilder.Append(binaryReader.ReadChar());
-		for (int i = 0; i < length; i++) PrintValue('=', type, stringBuilder);
-		stringBuilder.Append(binaryReader.ReadChar());
+		stringBuilder.Append(length);
+		stringBuilder.Append('[');
+		for (int i = 0; i < length; i++) PrintValue(type, '=');
+		stringBuilder.Append(']');
 	}
 
-	private void ReadArray<T>(Func<int, T[]> func, StringBuilder stringBuilder)
+	private void PrintArray<T>(Func<int, T[]> func)
 	{
 		int length = binaryReader.Read7BitEncodedInt();
-		stringBuilder.Append(binaryReader.ReadChar());
-		stringBuilder.Append(string.Join(" ", func(length)));
-		stringBuilder.Append(binaryReader.ReadChar());
+		stringBuilder.Append(length);
+		stringBuilder.Append('[');
+		stringBuilder.Append(string.Join(",", func(length)));
+		stringBuilder.Append(']');
 	}
 
 	public static string Print(byte[] bytes)
 	{
 		using MemoryStream memoryStream = new(bytes);
 		using BinaryReader binaryReader = new(memoryStream);
-		Printer printer = new(binaryReader);
+		Printer printer = new(binaryReader, new StringBuilder());
 		return printer.Print();
 	}
 }

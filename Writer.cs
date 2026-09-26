@@ -14,6 +14,7 @@ public class Writer(BinaryWriter binaryWriter) : IWriter
 		binaryWriter.Write(key);
 		binaryWriter.Write(value != null ? '=' : '~');
 		WriteValue(value);
+		binaryWriter.Write(';');
 	}
 
 	private void WriteValue<T>(T? value)
@@ -39,7 +40,6 @@ public class Writer(BinaryWriter binaryWriter) : IWriter
 		else if (value is byte[] bytes) WriteArray(bytes, binaryWriter.Write);
 		else if (value is Array array) WriteArray(array);
 		else if (value != null) throw new NotSupportedException(typeof(T).FullName);
-		binaryWriter.Write(';');
 	}
 
 	private void WriteObject(IBox box)
@@ -49,21 +49,17 @@ public class Writer(BinaryWriter binaryWriter) : IWriter
 		binaryWriter.Write('}');
 	}
 
+	private void WriteArray<T>(T[] array, Action<T[]> action)
+	{
+		binaryWriter.Write7BitEncodedInt(array.Length);
+		action(array);
+	}
+
 	private void WriteArray(Array array)
 	{
 		if (array.Rank != 1) throw new NotSupportedException();
 		binaryWriter.Write7BitEncodedInt(array.Length);
-		binaryWriter.Write('[');
 		for (int i = 0; i < array.Length; i++) WriteValue(array.GetValue(i));
-		binaryWriter.Write(']');
-	}
-
-	private void WriteArray<T>(T[] array, Action<T[]> action)
-	{
-		binaryWriter.Write7BitEncodedInt(array.Length);
-		binaryWriter.Write('"');
-		action(array);
-		binaryWriter.Write('"');
 	}
 
 	public static void Write<T>(T value, out byte[] bytes, [CallerArgumentExpression(nameof(value))] string key = "")
