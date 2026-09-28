@@ -39,7 +39,7 @@ public class Printer(BinaryReader binaryReader, StringBuilder stringBuilder)
 		else if (type == nameof(Single)) stringBuilder.Append(binaryReader.ReadSingle().ToString(CultureInfo.InvariantCulture));
 		else if (type == nameof(Double)) stringBuilder.Append(binaryReader.ReadDouble().ToString(CultureInfo.InvariantCulture));
 		else if (type == nameof(Decimal)) stringBuilder.Append(binaryReader.ReadDecimal().ToString(CultureInfo.InvariantCulture));
-		else if (type == nameof(DateTime)) stringBuilder.Append(DateTime.FromBinary(binaryReader.ReadInt64()).ToString(CultureInfo.InvariantCulture));
+		else if (type == nameof(DateTime)) stringBuilder.Append(DateTime.FromBinary(binaryReader.ReadInt64()).ToString("yyyy-MM-dd HH:mm:ss"));
 		else if (type == nameof(TimeSpan)) stringBuilder.Append(TimeSpan.FromTicks(binaryReader.ReadInt64()).ToString());
 		else if (type == nameof(String)) PrintString();
 		else if (type.EndsWith("[]")) PrintArray(type[..^2]);
@@ -56,7 +56,7 @@ public class Printer(BinaryReader binaryReader, StringBuilder stringBuilder)
 
 	private void PrintString()
 	{
-		string value  = binaryReader.ReadString();
+		string value = binaryReader.ReadString();
 		stringBuilder.Append(value.Length);
 		stringBuilder.Append('"');
 		stringBuilder.Append(value);
@@ -69,15 +69,6 @@ public class Printer(BinaryReader binaryReader, StringBuilder stringBuilder)
 		stringBuilder.Append(length);
 		stringBuilder.Append('[');
 		for (int i = 0; i < length; i++) PrintValue(type, '=');
-		stringBuilder.Append(']');
-	}
-
-	private void PrintArray<T>(Func<int, T[]> func)
-	{
-		int length = binaryReader.Read7BitEncodedInt();
-		stringBuilder.Append(length);
-		stringBuilder.Append('[');
-		stringBuilder.Append(string.Join(",", func(length)));
 		stringBuilder.Append(']');
 	}
 

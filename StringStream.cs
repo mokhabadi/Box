@@ -6,12 +6,8 @@ public class StringStream(string value)
 
 	public bool Finished()
 	{
+		Trim();
 		return position == value.Length;
-	}
-
-	public void Trim()
-	{
-		while (position < value.Length && char.IsWhiteSpace(value[position])) position++;
 	}
 
 	public string ReadTo(string separator)
@@ -41,6 +37,12 @@ public class StringStream(string value)
 
 	public char PeekChar()
 	{
+		Trim();
 		return value[position];
+	}
+
+	public void Trim()
+	{
+		while (position < value.Length && char.IsWhiteSpace(value[position])) position++;
 	}
 }

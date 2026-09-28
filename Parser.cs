@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 
 namespace Box;
@@ -35,9 +36,9 @@ public class Parser(BinaryWriter binaryWriter, StringStream stringStream)
 		else if (type == nameof(UInt32)) binaryWriter.Write(uint.Parse(stringStream.ReadTo(";")));
 		else if (type == nameof(Int64)) binaryWriter.Write(long.Parse(stringStream.ReadTo(";")));
 		else if (type == nameof(UInt64)) binaryWriter.Write(ulong.Parse(stringStream.ReadTo(";")));
-		else if (type == nameof(Single)) binaryWriter.Write(float.Parse(stringStream.ReadTo(";")));
-		else if (type == nameof(Double)) binaryWriter.Write(double.Parse(stringStream.ReadTo(";")));
-		else if (type == nameof(Decimal)) binaryWriter.Write(decimal.Parse(stringStream.ReadTo(";")));
+		else if (type == nameof(Single)) binaryWriter.Write(float.Parse(stringStream.ReadTo(";"), CultureInfo.InvariantCulture));
+		else if (type == nameof(Double)) binaryWriter.Write(double.Parse(stringStream.ReadTo(";"), CultureInfo.InvariantCulture));
+		else if (type == nameof(Decimal)) binaryWriter.Write(decimal.Parse(stringStream.ReadTo(";"), CultureInfo.InvariantCulture));
 		else if (type == nameof(DateTime)) binaryWriter.Write(DateTime.Parse(stringStream.ReadTo(";")).ToBinary());
 		else if (type == nameof(TimeSpan)) binaryWriter.Write(TimeSpan.Parse(stringStream.ReadTo(";")).Ticks);
 		else if (type == nameof(String)) ParseString();
