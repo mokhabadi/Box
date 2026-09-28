@@ -1,34 +1,44 @@
-﻿using System;
-
-namespace Box;
+﻿namespace Box;
 
 public class StringStream(string value)
 {
-	public int Position { get; private set; }
-	public int Length => value.Length;
+	private int position;
 
-	public string ReadTo(char separator)
+	public bool Finished()
 	{
-		string result = value.Substring(Position, value.IndexOf(separator, Position) - Position);
-		Position += result.Length + 1;
+		return position == value.Length;
+	}
+
+	public void Trim()
+	{
+		while (position < value.Length && char.IsWhiteSpace(value[position])) position++;
+	}
+
+	public string ReadTo(string separator)
+	{
+		Trim();
+		int from = position;
+		while (!separator.Contains(value[position])) position++;
+		string result = value.Substring(from, position - from);
 		return result;
 	}
 
 	public string Read(int length)
 	{
-		string result = value.Substring(Position, length);
-		Position += length;
+		string result = value.Substring(position, length);
+		position += length;
 		return result;
 	}
 
-	public void Read(string expectedString)
+	public char ReadChar()
 	{
-		if (value.Substring(Position, expectedString.Length) != expectedString) throw new Exception(value.Substring(Position - 10, 20));
-		Position += expectedString.Length;
+		char result = value[position];
+		position++;
+		return result;
 	}
 
 	public char PeekChar()
 	{
-		return value[Position];
+		return value[position];
 	}
 }

@@ -1,0 +1,9 @@
+﻿TestBox  testBoxValue  = 
+{
+	Int32  Id  =  333; 
+	String Name=8"test_box" ; 
+	InnerBox InnerBox  = 
+	{  
+		Single[] Dimensions =  3[4.4;4.5;4.6;] ; 
+	};
+};

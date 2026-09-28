@@ -121,19 +121,19 @@ public class Tester
 	{
 		MemoryStream memoryStream = new();
 		Write(memoryStream);
-		memoryStream.Position = 0;
 		byte[] bytes = memoryStream.ToArray();
-		string box = string.Concat(bytes.Select(b => b is >= 32 and <= 126 ? $"{(char)b}" : $"{b}"));
-		Trace.WriteLine(box);
-		Printer printer = new(new BinaryReader(memoryStream), new StringBuilder());
-		string print = printer.Print();
+		string rawSerial = string.Concat(bytes.Select(b => b is >= 32 and <= 126 ? $"{(char)b}" : $"{b}"));
+		Trace.WriteLine(rawSerial);
+		string print = Printer.Print(bytes);
 		Trace.WriteLine(print);
-		MemoryStream testMemoryStream = new(); 
-		Parser parser = new(new BinaryWriter(testMemoryStream), new StringStream(print));
-		parser.Parse();
-		Trace.WriteLine(string.Concat(testMemoryStream.ToArray().Select(b => b is >= 32 and <= 126 ? $"{(char)b}" : $"{b}")));
+		byte[] parsedBytes = Parser.Parse(print);
+		AssertEquality(bytes, parsedBytes);
 		memoryStream.Position = 0;
 		Read(memoryStream);
+		string testBoxString = File.ReadAllText("TestBox.txt");
+		byte[] testBoxBytes = Parser.Parse(testBoxString);
+		Reader.Read(out TestBox testBoxValue, testBoxBytes);
+		AssertEquality(testBoxValue, this.testBoxValue);
 	}
 
 	private void Write(MemoryStream stream)
