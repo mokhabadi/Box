@@ -33,9 +33,9 @@ public class Writer(BinaryWriter binaryWriter) : IWriter
 		else if (value is float @float) binaryWriter.Write(@float);
 		else if (value is double @double) binaryWriter.Write(@double);
 		else if (value is decimal @decimal) binaryWriter.Write(@decimal);
-		else if (value is string @string) binaryWriter.Write(@string);
 		else if (value is DateTime dateTime) binaryWriter.Write(dateTime.ToBinary());
 		else if (value is TimeSpan timeSpan) binaryWriter.Write(timeSpan.Ticks);
+		else if (value is string @string) binaryWriter.Write(@string);
 		else if (value is char[] chars) WriteArray(chars, binaryWriter.Write);
 		else if (value is byte[] bytes) WriteArray(bytes, binaryWriter.Write);
 		else if (value is Array array) WriteArray(array);

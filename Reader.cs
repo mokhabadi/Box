@@ -42,9 +42,9 @@ public class Reader(BinaryReader binaryReader) : IReader
 		if (type == typeof(float)) return binaryReader.ReadSingle();
 		if (type == typeof(double)) return binaryReader.ReadDouble();
 		if (type == typeof(decimal)) return binaryReader.ReadDecimal();
-		if (type == typeof(string)) return binaryReader.ReadString();
 		if (type == typeof(DateTime)) return DateTime.FromBinary(binaryReader.ReadInt64());
 		if (type == typeof(TimeSpan)) return TimeSpan.FromTicks(binaryReader.ReadInt64());
+		if (type == typeof(string)) return binaryReader.ReadString();
 		if (type == typeof(char[])) return ReadArray(binaryReader.ReadChars);
 		if (type.IsAssignableTo(typeof(byte[]))) return ReadArray(binaryReader.ReadBytes);
 		if (type.IsArray) return ReadArray(type.GetElementType()!);

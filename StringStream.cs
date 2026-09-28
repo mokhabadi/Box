@@ -19,7 +19,9 @@ public class StringStream(string value)
 		Trim();
 		int from = position;
 		while (!separator.Contains(value[position])) position++;
-		string result = value.Substring(from, position - from);
+		int to = position;
+		while (to > from && char.IsWhiteSpace(value[to - 1])) to--;
+		string result = value.Substring(from, to - from);
 		return result;
 	}
 

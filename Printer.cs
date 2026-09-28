@@ -39,9 +39,9 @@ public class Printer(BinaryReader binaryReader, StringBuilder stringBuilder)
 		else if (type == nameof(Single)) stringBuilder.Append(binaryReader.ReadSingle().ToString(CultureInfo.InvariantCulture));
 		else if (type == nameof(Double)) stringBuilder.Append(binaryReader.ReadDouble().ToString(CultureInfo.InvariantCulture));
 		else if (type == nameof(Decimal)) stringBuilder.Append(binaryReader.ReadDecimal().ToString(CultureInfo.InvariantCulture));
-		else if (type == nameof(String)) PrintString();
 		else if (type == nameof(DateTime)) stringBuilder.Append(DateTime.FromBinary(binaryReader.ReadInt64()).ToString(CultureInfo.InvariantCulture));
 		else if (type == nameof(TimeSpan)) stringBuilder.Append(TimeSpan.FromTicks(binaryReader.ReadInt64()).ToString());
+		else if (type == nameof(String)) PrintString();
 		else if (type.EndsWith("[]")) PrintArray(type[..^2]);
 		else PrintObject();
 		stringBuilder.Append(';');

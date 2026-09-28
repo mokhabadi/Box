@@ -7,7 +7,6 @@ public class Parser(BinaryWriter binaryWriter, StringStream stringStream)
 {
 	public void Parse()
 	{
-		stringStream.Trim();
 		while (!stringStream.Finished()) ParseItem();
 	}
 
@@ -17,7 +16,7 @@ public class Parser(BinaryWriter binaryWriter, StringStream stringStream)
 		string key = stringStream.ReadTo("=~");
 		char valueSign = stringStream.ReadChar();
 		binaryWriter.Write(type);
-		binaryWriter.Write(key.Trim());
+		binaryWriter.Write(key);
 		binaryWriter.Write(valueSign);
 		ParseValue(type, valueSign);
 		binaryWriter.Write(';');
@@ -39,9 +38,9 @@ public class Parser(BinaryWriter binaryWriter, StringStream stringStream)
 		else if (type == nameof(Single)) binaryWriter.Write(float.Parse(stringStream.ReadTo(";")));
 		else if (type == nameof(Double)) binaryWriter.Write(double.Parse(stringStream.ReadTo(";")));
 		else if (type == nameof(Decimal)) binaryWriter.Write(decimal.Parse(stringStream.ReadTo(";")));
-		else if (type == nameof(String)) ParseString();
 		else if (type == nameof(DateTime)) binaryWriter.Write(DateTime.Parse(stringStream.ReadTo(";")).ToBinary());
 		else if (type == nameof(TimeSpan)) binaryWriter.Write(TimeSpan.Parse(stringStream.ReadTo(";")).Ticks);
+		else if (type == nameof(String)) ParseString();
 		else if (type.EndsWith("[]")) ParseArray(type[..^2]);
 		else ParseObject();
 		stringStream.ReadChar();
